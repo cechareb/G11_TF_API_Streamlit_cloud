@@ -1,0 +1,51 @@
+trigger:
+- main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: '3.x'
+    addToPath: true
+
+- script: |
+    python -m venv env
+    source env/bin/activate
+    pip install -r requirements.txt
+  displayName: 'Instalar dependencias'
+
+- script: |
+    docker build -t streamlit_g11 .
+  displayName: 'Construir imagen Docker'
+
+- script: |
+    echo $(docker images -q streamlit_g11) > image-id.txt
+  displayName: 'Save ID de imagen Docker'
+
+- task: PublishPipelineArtifact@1
+  inputs:
+    targetPath: 'image-id.txt'
+    artifact: 'image-id'
+
+- task: AzureCLI@2
+  inputs:
+    azureSubscription: '<subscripcion-de-azure>'
+    scriptType: 'bash'
+    scriptLocation: 'inlineScript'
+    inlineScript: |
+      az acr login --name <your-container-registry>
+      docker tag streamlit-app <registro-de-container>.azurecr.io/streamlit_g11:latest
+      docker push <registro-de-container>.azurecr.io/streamlit_g11:latest
+  displayName: 'Pushear imagen de Docker a ACR'
+
+- task: AzureCLI@2
+  inputs:
+    azureSubscription: '<subscripcion-de-azure>'
+    scriptType: 'bash'
+    scriptLocation: 'inlineScript'
+    inlineScript: |
+      az webapp create --resource-group <grupo-resource> --plan <plan-servicio-app> --name app.py --deployment-container-image-name <registro-de-container>.azurecr.io/streamlit-app:latest
+      az webapp config appsettings set --resource-group <grupo-resource> --name app.py --settings WEBSITES_PORT=8000
+  displayName: 'Despliegue a Azure Web App'

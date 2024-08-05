@@ -1,0 +1,11 @@
+{
+    "AWSEBDockerrunVersion": "1",
+    "Image": {
+      "Name": "<url>.amazonaws.com/streamlit_g11:latest"
+    },
+    "Ports": [
+      {
+        "ContainerPort": 8000
+      }
+    ]
+  }

@@ -1,0 +1,11 @@
+version: '3.10'
+
+services:
+    app:
+        build: ./
+        command: streamlit run app.py --server.port 8090
+        volumes:
+            - ./:/usr/src
+        ports:
+            - 8090:8090
+        image: streamlit_g11:latest

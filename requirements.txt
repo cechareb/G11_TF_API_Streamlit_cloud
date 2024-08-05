@@ -1,0 +1,13 @@
+numpy
+pandas
+matplotlib
+scikit-learn
+bokeh
+plotly
+scipy
+pillow
+streamlit
+torch
+diffusers
+transformers
+fastapi
